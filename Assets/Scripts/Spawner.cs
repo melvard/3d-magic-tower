@@ -20,7 +20,6 @@ public class Spawner : MonoBehaviour
         SetSpawnPointPositions();
         defBrickHeight = Tower.transform.GetChild(0).localScale.y;
 
-        LowerTower(defBrickHeight);
 
 
         CurrentBrick = Instantiate(Tower.transform.GetChild(0).gameObject);

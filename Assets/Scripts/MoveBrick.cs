@@ -13,14 +13,6 @@ public class MoveBrick : MonoBehaviour
     private AxisDirection direction;
     private int i = 1;
 
-    private void Update()
-    {
-        if (currentBrick != null)
-        {
-            Debug.Log(currentBrick.transform.position);
-        }
-    }
-
     public SliceResult GetLastSliceStatus()
     {
         return sliceResult;

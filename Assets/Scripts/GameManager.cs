@@ -9,9 +9,15 @@ public class GameManager : MonoBehaviour
     public MoveBrick MoveScript;
     public ScoreCalculator ScoreCalculatorScript;
     public ParticleSystemManager ParticleSystemManagerScript;
+    public SceneMover SceneMoverScript;
+
+    [SerializeField] private GameObject GameOverAlert;
     // Start is called before the first frame update
     void Start()
     {
+        GameOverAlert.SetActive(false);
+        Debug.Log("GameManager started its work");
+        SceneMoverScript.LowerTower();
         MoveScript.StartMotion(SpawnerScript.SpawnBrick());
     }
 
@@ -26,6 +32,7 @@ public class GameManager : MonoBehaviour
                 SliceResult result = MoveScript.TryToSlice(SpawnerScript.Tower);
                 if (result != SliceResult.Failed)
                 {
+                    SceneMoverScript.LowerTower();
                     if (result == SliceResult.Perfectmatch)
                     {
                         var meshRenderer = SpawnerScript.Tower.transform.GetChild(1).GetComponent<MeshRenderer>();
@@ -36,14 +43,26 @@ public class GameManager : MonoBehaviour
                         ParticleSystemManagerScript.AnimatePerfectMatchParticle();
                     }
                     ScoreCalculatorScript.AddScore(1);
-                    MoveScript.StartMotion(SpawnerScript.SpawnBrick());
+                    var brickAxisPair = SpawnerScript.SpawnBrick();
+                    MoveScript.StartMotion(brickAxisPair);
+                }
+                else
+                {
+                    GameOverAlert.SetActive(true);
                 }
             }
         }
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            SceneManager.LoadScene(0);
+            StartAgain();
+            StartAgain();
         }
+
+    }
+
+    public void StartAgain()
+    {
+        SceneManager.LoadScene(0);
 
     }
 }

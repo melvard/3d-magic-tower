@@ -16,7 +16,8 @@ public class Slicer : MonoBehaviour
 
 			GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(victim, transform.position, knifeDirection, capMaterial, reverse);
 			taken = pieces[0];
-			pieces[1] = Instantiate(pieces[1]);
+			taken.name = "TakenBrick";
+			pieces[1].name = "LostBrick";
 			pieces[1].transform.position = new Vector3(pieces[1].transform.position.x, victim.transform.position.y, pieces[1].transform.position.z);
 			if (!taken.GetComponent<Rigidbody>())
 			{
