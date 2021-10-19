@@ -27,21 +27,23 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace BLINDED_AM_ME{
+namespace BLINDED_AM_ME
+{
 
-	public class MeshCut{
-        
-		private static Plane _blade;
-		private static Mesh  _victim_mesh;
+    public class MeshCut
+    {
+
+        private static Plane _blade;
+        private static Mesh _victim_mesh;
 
         // Caching
         private static Mesh_Maker _leftSide = new Mesh_Maker();
-		private static Mesh_Maker _rightSide = new Mesh_Maker();
-        private static Mesh_Maker.Triangle _triangleCache = new Mesh_Maker.Triangle( new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3] );
-        private static List<Vector3>       _newVerticesCache = new List<Vector3>();
-        private static bool[]              _isLeftSideCache = new bool[3];
-        private static int                 _capMatSub = 1;
-       
+        private static Mesh_Maker _rightSide = new Mesh_Maker();
+        private static Mesh_Maker.Triangle _triangleCache = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
+        private static List<Vector3> _newVerticesCache = new List<Vector3>();
+        private static bool[] _isLeftSideCache = new bool[3];
+        private static int _capMatSub = 1;
+
         /// <summary>
         /// Yeah
         /// </summary>
@@ -50,41 +52,46 @@ namespace BLINDED_AM_ME{
         /// <param name="normalDirection">blade right direction</param>
         /// <param name="capMaterial">Meat</param>
         /// <returns></returns>
-        public static GameObject[] Cut(GameObject victim, Vector3 anchorPoint, Vector3 normalDirection, Material capMaterial, bool reverse){
-           
-			// set the blade relative to victim
-			_blade = new Plane(victim.transform.InverseTransformDirection(-normalDirection),
-				victim.transform.InverseTransformPoint(anchorPoint));
+        public static GameObject[] Cut(GameObject victim, Vector3 anchorPoint, Vector3 normalDirection, Material capMaterial, bool reverse)
+        {
 
-			// get the victims mesh
-			_victim_mesh = victim.GetComponent<MeshFilter>().mesh;
+            // set the blade relative to victim
+
+            _blade = new Plane(victim.transform.InverseTransformDirection(-normalDirection), victim.transform.InverseTransformPoint(anchorPoint));
+
+
+
+            // get the victims mesh
+            _victim_mesh = victim.GetComponent<MeshFilter>().mesh;
 
             // two new meshes
             _leftSide.Clear();
             _rightSide.Clear();
             _newVerticesCache.Clear();
 
-            
-			int index_1, index_2, index_3;
+
+            int index_1, index_2, index_3;
 
             var mesh_vertices = _victim_mesh.vertices;
-            var mesh_normals  = _victim_mesh.normals;
-            var mesh_uvs      = _victim_mesh.uv;
+            var mesh_normals = _victim_mesh.normals;
+            var mesh_uvs = _victim_mesh.uv;
             var mesh_tangents = _victim_mesh.tangents;
             if (mesh_tangents != null && mesh_tangents.Length == 0)
                 mesh_tangents = null;
 
-			// go through the submeshes
-			for (int submeshIterator=0; submeshIterator<_victim_mesh.subMeshCount; submeshIterator++){
+            // go through the submeshes
+            for (int submeshIterator = 0; submeshIterator < _victim_mesh.subMeshCount; submeshIterator++)
+            {
 
                 // Triangles
-				var indices = _victim_mesh.GetTriangles(submeshIterator);
-                
-				for(int i=0; i<indices.Length; i+=3){
+                var indices = _victim_mesh.GetTriangles(submeshIterator);
 
-					index_1 = indices[i];
-					index_2 = indices[i+1];
-					index_3 = indices[i+2];
+                for (int i = 0; i < indices.Length; i += 3)
+                {
+
+                    index_1 = indices[i];
+                    index_2 = indices[i + 1];
+                    index_3 = indices[i + 2];
 
                     // verts
                     _triangleCache.vertices[0] = mesh_vertices[index_1];
@@ -117,49 +124,52 @@ namespace BLINDED_AM_ME{
 
                     // which side are the vertices on
                     _isLeftSideCache[0] = _blade.GetSide(mesh_vertices[index_1]);
-					_isLeftSideCache[1] = _blade.GetSide(mesh_vertices[index_2]);
-					_isLeftSideCache[2] = _blade.GetSide(mesh_vertices[index_3]);
-                    
+                    _isLeftSideCache[1] = _blade.GetSide(mesh_vertices[index_2]);
+                    _isLeftSideCache[2] = _blade.GetSide(mesh_vertices[index_3]);
 
-					// whole triangle
-					if(_isLeftSideCache[0] == _isLeftSideCache[1] && _isLeftSideCache[0] == _isLeftSideCache[2]){
 
-                       
-                            if (_isLeftSideCache[0]) // left side
-                                _leftSide.AddTriangle(_triangleCache, submeshIterator);
-                            else // right side
-                                _rightSide.AddTriangle(_triangleCache, submeshIterator);
-                        
+                    // whole triangle
+                    if (_isLeftSideCache[0] == _isLeftSideCache[1] && _isLeftSideCache[0] == _isLeftSideCache[2])
+                    {
+
+
+                        if (_isLeftSideCache[0]) // left side
+                            _leftSide.AddTriangle(_triangleCache, submeshIterator);
+                        else // right side
+                            _rightSide.AddTriangle(_triangleCache, submeshIterator);
+
 
                     }
-                    else{ // cut the triangle
-						
-						Cut_this_Face(ref _triangleCache, submeshIterator);
-					}
-				}
-			}
+                    else
+                    { // cut the triangle
 
-			// The capping Material will be at the end
-			Material[] mats = victim.GetComponent<MeshRenderer>().sharedMaterials;
-			if(mats[mats.Length-1].name != capMaterial.name){
-				Material[] newMats = new Material[mats.Length+1];
-				mats.CopyTo(newMats, 0);
-				newMats[mats.Length] = capMaterial;
-				mats = newMats;
-			}
-			_capMatSub = mats.Length-1; // for later use
+                        Cut_this_Face(ref _triangleCache, submeshIterator);
+                    }
+                }
+            }
 
-			// cap the opennings
-			Cap_the_Cut();
+            // The capping Material will be at the end
+            Material[] mats = victim.GetComponent<MeshRenderer>().sharedMaterials;
+            if (mats[mats.Length - 1].name != capMaterial.name)
+            {
+                Material[] newMats = new Material[mats.Length + 1];
+                mats.CopyTo(newMats, 0);
+                newMats[mats.Length] = capMaterial;
+                mats = newMats;
+            }
+            _capMatSub = mats.Length - 1; // for later use
+
+            // cap the opennings
+            Cap_the_Cut();
 
 
-			// Left Mesh
-			Mesh left_HalfMesh = _leftSide.GetMesh();
-			left_HalfMesh.name =  "Split Mesh Left";
+            // Left Mesh
+            Mesh left_HalfMesh = _leftSide.GetMesh();
+            left_HalfMesh.name = "Split Mesh Left";
 
-			// Right Mesh
-			Mesh right_HalfMesh = _rightSide.GetMesh();
-			right_HalfMesh.name = "Split Mesh Right";
+            // Right Mesh
+            Mesh right_HalfMesh = _rightSide.GetMesh();
+            right_HalfMesh.name = "Split Mesh Right";
 
             // assign the game objects
             GameObject side1 = new GameObject();
@@ -212,17 +222,17 @@ namespace BLINDED_AM_ME{
                 side1.GetComponent<MeshRenderer>().materials = mats;
                 side2.GetComponent<MeshRenderer>().materials = mats;
             }
-			
 
-			return new GameObject[]{ side1, side2 };
 
-		}
+            return new GameObject[] { side1, side2 };
+
+        }
 
         #region Cutting
         // Caching
-        private static Mesh_Maker.Triangle _leftTriangleCache  = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
+        private static Mesh_Maker.Triangle _leftTriangleCache = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
         private static Mesh_Maker.Triangle _rightTriangleCache = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
-        private static Mesh_Maker.Triangle _newTriangleCache  = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
+        private static Mesh_Maker.Triangle _newTriangleCache = new Mesh_Maker.Triangle(new Vector3[3], new Vector2[3], new Vector3[3], new Vector4[3]);
         // Functions
         private static void Cut_this_Face(ref Mesh_Maker.Triangle triangle, int submesh)
         {
@@ -244,7 +254,7 @@ namespace BLINDED_AM_ME{
                     _leftTriangleCache.uvs[leftCount] = triangle.uvs[i];
                     _leftTriangleCache.normals[leftCount] = triangle.normals[i];
                     _leftTriangleCache.tangents[leftCount] = triangle.tangents[i];
-                    
+
                     leftCount++;
                 }
                 else
@@ -266,35 +276,35 @@ namespace BLINDED_AM_ME{
             if (leftCount == 1)
             {
                 _triangleCache.vertices[0] = _leftTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _leftTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _leftTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _leftTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _leftTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _leftTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _rightTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _rightTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _rightTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _rightTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _rightTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _rightTriangleCache.tangents[0];
-                                                   
+
                 _triangleCache.vertices[2] = _rightTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _rightTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _rightTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _rightTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _rightTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _rightTriangleCache.tangents[1];
             }
             else // rightCount == 1
             {
                 _triangleCache.vertices[0] = _rightTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _rightTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _rightTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _rightTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _rightTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _rightTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _leftTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _leftTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _leftTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _leftTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _leftTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _leftTriangleCache.tangents[0];
-                                                   
+
                 _triangleCache.vertices[2] = _leftTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _leftTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _leftTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _leftTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _leftTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _leftTriangleCache.tangents[1];
             }
 
@@ -308,8 +318,8 @@ namespace BLINDED_AM_ME{
 
             normalizedDistance = distance / edgeVector.magnitude;
             _newTriangleCache.vertices[0] = Vector3.Lerp(_triangleCache.vertices[0], _triangleCache.vertices[1], normalizedDistance);
-            _newTriangleCache.uvs[0]      = Vector2.Lerp(_triangleCache.uvs[0],      _triangleCache.uvs[1],      normalizedDistance);
-            _newTriangleCache.normals[0]  = Vector3.Lerp(_triangleCache.normals[0],  _triangleCache.normals[1],  normalizedDistance);
+            _newTriangleCache.uvs[0] = Vector2.Lerp(_triangleCache.uvs[0], _triangleCache.uvs[1], normalizedDistance);
+            _newTriangleCache.normals[0] = Vector3.Lerp(_triangleCache.normals[0], _triangleCache.normals[1], normalizedDistance);
             _newTriangleCache.tangents[0] = Vector4.Lerp(_triangleCache.tangents[0], _triangleCache.tangents[1], normalizedDistance);
 
             edgeVector = _triangleCache.vertices[2] - _triangleCache.vertices[0];
@@ -317,8 +327,8 @@ namespace BLINDED_AM_ME{
 
             normalizedDistance = distance / edgeVector.magnitude;
             _newTriangleCache.vertices[1] = Vector3.Lerp(_triangleCache.vertices[0], _triangleCache.vertices[2], normalizedDistance);
-            _newTriangleCache.uvs[1]      = Vector2.Lerp(_triangleCache.uvs[0],      _triangleCache.uvs[2],      normalizedDistance);
-            _newTriangleCache.normals[1]  = Vector3.Lerp(_triangleCache.normals[0],  _triangleCache.normals[2],  normalizedDistance);
+            _newTriangleCache.uvs[1] = Vector2.Lerp(_triangleCache.uvs[0], _triangleCache.uvs[2], normalizedDistance);
+            _newTriangleCache.normals[1] = Vector3.Lerp(_triangleCache.normals[0], _triangleCache.normals[2], normalizedDistance);
             _newTriangleCache.tangents[1] = Vector4.Lerp(_triangleCache.tangents[0], _triangleCache.tangents[2], normalizedDistance);
 
             if (_newTriangleCache.vertices[0] != _newTriangleCache.vertices[1])
@@ -334,20 +344,20 @@ namespace BLINDED_AM_ME{
             {
                 // first one on the left
                 _triangleCache.vertices[0] = _leftTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _leftTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _leftTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _leftTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _leftTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _leftTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _newTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _newTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _newTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _newTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _newTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _newTriangleCache.tangents[0];
-                                                   
+
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
-                
+
                 // check if it is facing the right way
                 NormalCheck(ref _triangleCache);
 
@@ -357,20 +367,20 @@ namespace BLINDED_AM_ME{
 
                 // other two on the right
                 _triangleCache.vertices[0] = _rightTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _rightTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _rightTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _rightTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _rightTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _rightTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _newTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _newTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _newTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _newTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _newTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _newTriangleCache.tangents[0];
 
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
-                
+
                 // check if it is facing the right way
                 NormalCheck(ref _triangleCache);
 
@@ -379,18 +389,18 @@ namespace BLINDED_AM_ME{
 
                 // third
                 _triangleCache.vertices[0] = _rightTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _rightTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _rightTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _rightTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _rightTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _rightTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _rightTriangleCache.vertices[1];
-                _triangleCache.uvs[1]      = _rightTriangleCache.uvs[1];
-                _triangleCache.normals[1]  = _rightTriangleCache.normals[1];
+                _triangleCache.uvs[1] = _rightTriangleCache.uvs[1];
+                _triangleCache.normals[1] = _rightTriangleCache.normals[1];
                 _triangleCache.tangents[1] = _rightTriangleCache.tangents[1];
 
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
 
                 // check if it is facing the right way
@@ -403,18 +413,18 @@ namespace BLINDED_AM_ME{
             {
                 // first one on the right
                 _triangleCache.vertices[0] = _rightTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _rightTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _rightTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _rightTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _rightTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _rightTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _newTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _newTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _newTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _newTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _newTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _newTriangleCache.tangents[0];
 
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
 
                 // check if it is facing the right way
@@ -426,18 +436,18 @@ namespace BLINDED_AM_ME{
 
                 // other two on the left
                 _triangleCache.vertices[0] = _leftTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _leftTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _leftTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _leftTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _leftTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _leftTriangleCache.tangents[0];
 
                 _triangleCache.vertices[1] = _newTriangleCache.vertices[0];
-                _triangleCache.uvs[1]      = _newTriangleCache.uvs[0];
-                _triangleCache.normals[1]  = _newTriangleCache.normals[0];
+                _triangleCache.uvs[1] = _newTriangleCache.uvs[0];
+                _triangleCache.normals[1] = _newTriangleCache.normals[0];
                 _triangleCache.tangents[1] = _newTriangleCache.tangents[0];
 
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
 
                 // check if it is facing the right way
@@ -448,18 +458,18 @@ namespace BLINDED_AM_ME{
 
                 // third
                 _triangleCache.vertices[0] = _leftTriangleCache.vertices[0];
-                _triangleCache.uvs[0]      = _leftTriangleCache.uvs[0];
-                _triangleCache.normals[0]  = _leftTriangleCache.normals[0];
+                _triangleCache.uvs[0] = _leftTriangleCache.uvs[0];
+                _triangleCache.normals[0] = _leftTriangleCache.normals[0];
                 _triangleCache.tangents[0] = _leftTriangleCache.tangents[0];
-                                                   
+
                 _triangleCache.vertices[1] = _leftTriangleCache.vertices[1];
-                _triangleCache.uvs[1]      = _leftTriangleCache.uvs[1];
-                _triangleCache.normals[1]  = _leftTriangleCache.normals[1];
+                _triangleCache.uvs[1] = _leftTriangleCache.uvs[1];
+                _triangleCache.normals[1] = _leftTriangleCache.normals[1];
                 _triangleCache.tangents[1] = _leftTriangleCache.tangents[1];
 
                 _triangleCache.vertices[2] = _newTriangleCache.vertices[1];
-                _triangleCache.uvs[2]      = _newTriangleCache.uvs[1];
-                _triangleCache.normals[2]  = _newTriangleCache.normals[1];
+                _triangleCache.uvs[2] = _newTriangleCache.uvs[1];
+                _triangleCache.normals[2] = _newTriangleCache.normals[1];
                 _triangleCache.tangents[2] = _newTriangleCache.tangents[1];
 
                 // check if it is facing the right way
@@ -468,16 +478,17 @@ namespace BLINDED_AM_ME{
                 // add it
                 _leftSide.AddTriangle(_triangleCache, submesh);
             }
-            
+
         }
         #endregion
 
         #region Capping
         // Caching
         private static List<int> _capUsedIndicesCache = new List<int>();
-		private static List<int> _capPolygonIndicesCache = new List<int>();
+        private static List<int> _capPolygonIndicesCache = new List<int>();
         // Functions
-		private static void Cap_the_Cut(){
+        private static void Cap_the_Cut()
+        {
 
             _capUsedIndicesCache.Clear();
             _capPolygonIndicesCache.Clear();
@@ -485,7 +496,7 @@ namespace BLINDED_AM_ME{
             // find the needed polygons
             // the cut faces added new vertices by 2 each time to make an edge
             // if two edges contain the same Vector3 point, they are connected
-            for (int i = 0; i < _newVerticesCache.Count; i+=2)
+            for (int i = 0; i < _newVerticesCache.Count; i += 2)
             {
                 // check the edge
                 if (!_capUsedIndicesCache.Contains(i)) // if it has one, it has this edge
@@ -498,7 +509,7 @@ namespace BLINDED_AM_ME{
                     _capUsedIndicesCache.Add(i);
                     _capUsedIndicesCache.Add(i + 1);
 
-                    Vector3 connectionPointLeft  = _newVerticesCache[i];
+                    Vector3 connectionPointLeft = _newVerticesCache[i];
                     Vector3 connectionPointRight = _newVerticesCache[i + 1];
                     bool isDone = false;
 
@@ -510,7 +521,7 @@ namespace BLINDED_AM_ME{
                         // loop through edges
                         for (int index = 0; index < _newVerticesCache.Count; index += 2)
                         {   // if it has one, it has this edge
-                            if (!_capUsedIndicesCache.Contains(index)) 
+                            if (!_capUsedIndicesCache.Contains(index))
                             {
                                 Vector3 nextPoint1 = _newVerticesCache[index];
                                 Vector3 nextPoint2 = _newVerticesCache[index + 1];
@@ -545,16 +556,16 @@ namespace BLINDED_AM_ME{
                                         _capPolygonIndicesCache.Add(index);
                                         connectionPointRight = _newVerticesCache[index];
                                     }
-                                    
+
                                     isDone = false;
                                 }
                             }
                         }
                     }// while isDone = False
-                    
+
                     // check if the link is closed
                     // first == last
-                     if (_newVerticesCache[_capPolygonIndicesCache[0]] == _newVerticesCache[_capPolygonIndicesCache[_capPolygonIndicesCache.Count - 1]])
+                    if (_newVerticesCache[_capPolygonIndicesCache[0]] == _newVerticesCache[_capPolygonIndicesCache[_capPolygonIndicesCache.Count - 1]])
                         _capPolygonIndicesCache[_capPolygonIndicesCache.Count - 1] = _capPolygonIndicesCache[0];
                     else
                         _capPolygonIndicesCache.Add(_capPolygonIndicesCache[0]);
@@ -563,8 +574,9 @@ namespace BLINDED_AM_ME{
                     FillCap_Method1(_capPolygonIndicesCache);
                 }
             }
-		}
-		private static void FillCap_Method1(List<int> indices){
+        }
+        private static void FillCap_Method1(List<int> indices)
+        {
 
             // center of the cap
             Vector3 center = Vector3.zero;
@@ -656,7 +668,7 @@ namespace BLINDED_AM_ME{
                 iterator = (iterator + 1) % indices.Count;
             }
 
-		}
+        }
         private static void FillCap_Method2(List<int> indices)
         {
 
@@ -748,7 +760,7 @@ namespace BLINDED_AM_ME{
                 Vector2 temp2 = triangle.uvs[2];
                 triangle.uvs[2] = triangle.uvs[0];
                 triangle.uvs[0] = temp2;
-                
+
                 Vector4 temp3 = triangle.tangents[2];
                 triangle.tangents[2] = triangle.tangents[0];
                 triangle.tangents[0] = temp3;

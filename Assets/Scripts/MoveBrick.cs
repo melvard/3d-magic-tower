@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Slicer))]
 public class MoveBrick : MonoBehaviour
 {
     [SerializeField] private float moveTime = 10f;
@@ -73,10 +72,10 @@ public class MoveBrick : MonoBehaviour
         Vector3 currentBrickPosition = currentBrick.GetComponent<MeshRenderer>().bounds.center;
         Vector3 currentBrickScale = currentBrick.GetComponent<MeshRenderer>().bounds.extents;
 
-        Debug.Log("Previous pos:" + previousBrickPosition);
-        Debug.Log("Previous scale:" + previousBrickScale);
-        Debug.Log("Current pos:" + currentBrickPosition);
-        Debug.Log("Current scale:" + currentBrickScale);
+        //Debug.Log("Previous pos:" + previousBrickPosition);
+        //Debug.Log("Previous scale:" + previousBrickScale);
+        //Debug.Log("Current pos:" + currentBrickPosition);
+        //Debug.Log("Current scale:" + currentBrickScale);
 
 
 
@@ -149,7 +148,6 @@ public class MoveBrick : MonoBehaviour
             sliceResult = SliceResult.Success;
             currentBrick = slicer.Slice(reverse, knifePosition, knifeDirection);
         }
-
 
     }
 
