@@ -5,16 +5,25 @@ using UnityEngine;
 public class Slicer : MonoBehaviour
 {
 	[SerializeField] private Material capMaterial;
+
+    public GameObject Knife { get { return gameObject; } }
 	public GameObject Slice(bool reverse, Vector3 knifePosition , Vector3 knifeDirection)
     {
 		var taken = new GameObject();
-		transform.position = knifePosition;
+		//transform.position = knifePosition;
+		//if( reverse)
+  //      {
+  //          gameObject.transform.Rotate(new Vector3(0, 0, 180), Space.Self);
+  //      }
+		//gameObject.transform.Rotate(new Vector3(0d 90, 0));
 		RaycastHit hit;
 		if (Physics.Raycast(transform.position, transform.up, out hit))
 		{
+			Debug.Log("Hit");
 			GameObject victim = hit.collider.gameObject;
+			GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(victim, transform.position, transform.right, capMaterial, false);
+			//GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(victim, transform.position, knifePosition, capMaterial, reverse);
 
-			GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(victim, transform.position, knifeDirection, capMaterial, reverse);
 			taken = pieces[0];
 			taken.name = "TakenBrick";
 			pieces[1].name = "LostBrick";

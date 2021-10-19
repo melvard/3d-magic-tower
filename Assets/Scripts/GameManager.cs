@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         GameOverAlert.SetActive(false);
-        Debug.Log("GameManager started its work");
         SceneMoverScript.LowerTower();
         MoveScript.StartMotion(SpawnerScript.SpawnBrick());
     }
@@ -56,6 +55,10 @@ public class GameManager : MonoBehaviour
         {
             StartAgain();
             StartAgain();
+        }
+        else if(Input.GetKeyDown(KeyCode.P))
+        {
+            UnityEditor.EditorApplication.isPaused = true;
         }
 
     }

@@ -137,7 +137,6 @@ GameObject:
   - component: {fileID: 44320525}
   - component: {fileID: 44320526}
   - component: {fileID: 44320528}
-  - component: {fileID: 44320529}
   - component: {fileID: 44320530}
   m_Layer: 0
   m_Name: GameManager
@@ -235,19 +234,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   brickPerfectMatchParticleSystem: {fileID: 1989264652}
---- !u!114 &44320529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44320522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce8f96cc67c471948af941a47b292e6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capMaterial: {fileID: 2100000, guid: 9a5191c83dd0240399504f48a74b44a8, type: 2}
 --- !u!114 &44320530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2173,7 +2159,7 @@ Light:
   m_GameObject: {fileID: 1376841076}
   m_Enabled: 1
   serializedVersion: 10
-  m_Type: 2
+  m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1.04
@@ -2182,11 +2168,11 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
+    m_Strength: 0
+    m_Bias: 0
     m_NormalBias: 0.4
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
@@ -2215,7 +2201,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 2
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -2233,13 +2219,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1376841076}
-  m_LocalRotation: {x: -0.0752596, y: 0.3955277, z: 0.8497432, w: -0.34033862}
+  m_LocalRotation: {x: -0.43600228, y: -0.52500844, z: 0.35103258, w: -0.64112735}
   m_LocalPosition: {x: 1.35, y: 6.49, z: -7.78}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: -38.387, y: -30.441, z: 234.475}
+  m_LocalEulerAnglesHint: {x: 68.072, y: 79.425, z: 361.181}
 --- !u!1 &1417666232
 GameObject:
   m_ObjectHideFlags: 0
@@ -2733,17 +2719,17 @@ LightingSettings:
   m_PVRCulling: 1
   m_PVRSampling: 1
   m_PVRDirectSampleCount: 32
-  m_PVRSampleCount: 500
-  m_PVREnvironmentSampleCount: 500
+  m_PVRSampleCount: 512
+  m_PVREnvironmentSampleCount: 256
   m_PVREnvironmentReferencePointCount: 2048
   m_LightProbeSampleCountMultiplier: 4
   m_PVRBounces: 2
-  m_PVRMinBounces: 2
-  m_PVREnvironmentMIS: 0
-  m_PVRFilteringMode: 2
-  m_PVRDenoiserTypeDirect: 0
-  m_PVRDenoiserTypeIndirect: 0
-  m_PVRDenoiserTypeAO: 0
+  m_PVRMinBounces: 1
+  m_PVREnvironmentMIS: 1
+  m_PVRFilteringMode: 1
+  m_PVRDenoiserTypeDirect: 1
+  m_PVRDenoiserTypeIndirect: 1
+  m_PVRDenoiserTypeAO: 1
   m_PVRFilterTypeDirect: 0
   m_PVRFilterTypeIndirect: 0
   m_PVRFilterTypeAO: 0
@@ -2782,7 +2768,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce8f96cc67c471948af941a47b292e6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  capMaterial: {fileID: 2100000, guid: e25ae3823903a954cb15987cacad9353, type: 2}
+  capMaterial: {fileID: 2100000, guid: b6d431205422a294c89e63c2814a6a92, type: 2}
 --- !u!4 &1985670094
 Transform:
   m_ObjectHideFlags: 0
@@ -2790,13 +2776,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985670092}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.79, y: 0.41, z: -1.17}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -0.199, y: 0.41, z: -0.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1989264649
 GameObject:
   m_ObjectHideFlags: 0
